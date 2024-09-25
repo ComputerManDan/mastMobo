@@ -270,53 +270,52 @@ class GalleryFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         setUiEnabled(false)
         backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
         updateDisplayView(MediaType.IMAGE)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val source = ImageDecoder.createSource(
-                requireActivity().contentResolver,
-                uri
-            )
+
+        val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val source = ImageDecoder.createSource(requireActivity().contentResolver, uri)
             ImageDecoder.decodeBitmap(source)
         } else {
-            MediaStore.Images.Media.getBitmap(
-                requireActivity().contentResolver,
-                uri
-            )
-        }
-            .copy(Bitmap.Config.ARGB_8888, true)
-            ?.let { bitmap ->
-                fragmentGalleryBinding.imageResult.setImageBitmap(bitmap)
+            MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
+        }.copy(Bitmap.Config.ARGB_8888, true)
 
-                // Run pose landmarker on the input image
-                backgroundExecutor.execute {
+        bitmap?.let { bmp ->
+            fragmentGalleryBinding.imageResult.setImageBitmap(bmp)
 
-                    poseLandmarkerHelper =
-                        PoseLandmarkerHelper(
-                            context = requireContext(),
-                            runningMode = RunningMode.IMAGE,
-                            minPoseDetectionConfidence = viewModel.currentMinPoseDetectionConfidence,
-                            minPoseTrackingConfidence = viewModel.currentMinPoseTrackingConfidence,
-                            minPosePresenceConfidence = viewModel.currentMinPosePresenceConfidence,
-                            currentDelegate = viewModel.currentDelegate
+            // Run pose landmarker on the input image
+            backgroundExecutor.execute {
+
+                poseLandmarkerHelper =
+                    PoseLandmarkerHelper(
+                        context = requireContext(),
+                        runningMode = RunningMode.IMAGE,
+                        minPoseDetectionConfidence = viewModel.currentMinPoseDetectionConfidence,
+                        minPoseTrackingConfidence = viewModel.currentMinPoseTrackingConfidence,
+                        minPosePresenceConfidence = viewModel.currentMinPosePresenceConfidence,
+                        currentDelegate = viewModel.currentDelegate
+                    )
+
+                poseLandmarkerHelper.detectImage(bmp)?.let { result ->
+                    activity?.runOnUiThread {
+                        // Pass pose landmarks to OverlayView to draw joint labels and landmarks
+                        fragmentGalleryBinding.overlay.setResults(
+                            result.results[0],
+                            bmp.height,
+                            bmp.width,
+                            RunningMode.IMAGE
                         )
 
-                    poseLandmarkerHelper.detectImage(bitmap)?.let { result ->
-                        activity?.runOnUiThread {
-                            fragmentGalleryBinding.overlay.setResults(
-                                result.results[0],
-                                bitmap.height,
-                                bitmap.width,
-                                RunningMode.IMAGE
-                            )
+                        // Redraw the overlay to reflect the updated joint labels
+                        fragmentGalleryBinding.overlay.invalidate()
 
-                            setUiEnabled(true)
-                            fragmentGalleryBinding.bottomSheetLayout.inferenceTimeVal.text =
-                                String.format("%d ms", result.inferenceTime)
-                        }
-                    } ?: run { Log.e(TAG, "Error running pose landmarker.") }
+                        setUiEnabled(true)
+                        fragmentGalleryBinding.bottomSheetLayout.inferenceTimeVal.text =
+                            String.format("%d ms", result.inferenceTime)
+                    }
+                } ?: run { Log.e(TAG, "Error running pose landmarker.") }
 
-                    poseLandmarkerHelper.clearPoseLandmarker()
-                }
+                poseLandmarkerHelper.clearPoseLandmarker()
             }
+        }
     }
 
     private fun runDetectionOnVideo(uri: Uri) {

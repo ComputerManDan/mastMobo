@@ -1,18 +1,3 @@
-/*
- * Copyright 2023 The TensorFlow Authors. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.google.mediapipe.examples.poselandmarker
 
 import android.content.Context
@@ -34,6 +19,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var results: PoseLandmarkerResult? = null
     private var pointPaint = Paint()
     private var linePaint = Paint()
+    private var textPaint = Paint()
 
     private var scaleFactor: Float = 1f
     private var imageWidth: Int = 1
@@ -47,6 +33,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         results = null
         pointPaint.reset()
         linePaint.reset()
+        textPaint.reset()
         invalidate()
         initPaints()
     }
@@ -60,27 +47,38 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         pointPaint.color = Color.YELLOW
         pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH
         pointPaint.style = Paint.Style.FILL
+
+        textPaint.color = Color.WHITE
+        textPaint.textSize = 40f
+        textPaint.style = Paint.Style.FILL
     }
 
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
-            for(landmark in poseLandmarkerResult.landmarks()) {
-                for(normalizedLandmark in landmark) {
-                    canvas.drawPoint(
-                        normalizedLandmark.x() * imageWidth * scaleFactor,
-                        normalizedLandmark.y() * imageHeight * scaleFactor,
-                        pointPaint
-                    )
+
+            // Draw points and joint labels
+            for ((index, landmark) in poseLandmarkerResult.landmarks().withIndex()) {
+                for (normalizedLandmark in landmark) {
+                    val x = normalizedLandmark.x() * imageWidth * scaleFactor
+                    val y = normalizedLandmark.y() * imageHeight * scaleFactor
+
+                    // Draw the landmark point
+                    canvas.drawPoint(x, y, pointPaint)
+
+                    // Draw the joint label
+                    canvas.drawText("Joint ${index + 1}", x, y - 20, textPaint)
                 }
 
+                // Draw lines connecting the landmarks (pose skeleton)
                 PoseLandmarker.POSE_LANDMARKS.forEach {
                     canvas.drawLine(
-                        poseLandmarkerResult.landmarks().get(0).get(it!!.start()).x() * imageWidth * scaleFactor,
-                        poseLandmarkerResult.landmarks().get(0).get(it.start()).y() * imageHeight * scaleFactor,
-                        poseLandmarkerResult.landmarks().get(0).get(it.end()).x() * imageWidth * scaleFactor,
-                        poseLandmarkerResult.landmarks().get(0).get(it.end()).y() * imageHeight * scaleFactor,
-                        linePaint)
+                        poseLandmarkerResult.landmarks()[0][it!!.start()].x() * imageWidth * scaleFactor,
+                        poseLandmarkerResult.landmarks()[0][it.start()].y() * imageHeight * scaleFactor,
+                        poseLandmarkerResult.landmarks()[0][it.end()].x() * imageWidth * scaleFactor,
+                        poseLandmarkerResult.landmarks()[0][it.end()].y() * imageHeight * scaleFactor,
+                        linePaint
+                    )
                 }
             }
         }

@@ -362,22 +362,24 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     ) {
         activity?.runOnUiThread {
             if (_fragmentCameraBinding != null) {
+                // Display the inference time
                 fragmentCameraBinding.bottomSheetLayout.inferenceTimeVal.text =
                     String.format("%d ms", resultBundle.inferenceTime)
 
-                // Pass necessary information to OverlayView for drawing on the canvas
+                // Pass necessary information to OverlayView for drawing the joint labels and landmarks
                 fragmentCameraBinding.overlay.setResults(
-                    resultBundle.results.first(),
-                    resultBundle.inputImageHeight,
-                    resultBundle.inputImageWidth,
-                    RunningMode.LIVE_STREAM
+                    resultBundle.results.first(), // PoseLandmarkerResult
+                    resultBundle.inputImageHeight, // Image height from the input
+                    resultBundle.inputImageWidth,  // Image width from the input
+                    RunningMode.LIVE_STREAM        // Running mode for live stream
                 )
 
-                // Force a redraw
+                // Force a redraw of the OverlayView to display updated joint labels
                 fragmentCameraBinding.overlay.invalidate()
             }
         }
     }
+
 
     override fun onError(error: String, errorCode: Int) {
         activity?.runOnUiThread {
