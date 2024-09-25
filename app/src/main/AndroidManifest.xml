@@ -34,19 +34,14 @@
         tools:ignore="AllowBackup">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <!-- Declare notch support -->
-            <meta-data
-                android:name="android.notch_support"
-                android:value="true" />
         </activity>
+
     </application>
 
 </manifest>
