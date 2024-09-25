@@ -17,6 +17,13 @@
         android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <Button
+        android:id="@+id/switchCameraButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Switch Camera"
+        android:layout_margin="16dp"
+        android:layout_gravity="top|end" />
 
     <!-- Bottom sheet layout for additional controls -->
     <include

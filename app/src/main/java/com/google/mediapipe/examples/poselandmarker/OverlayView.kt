@@ -13,8 +13,7 @@ import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import kotlin.math.max
 import kotlin.math.min
 
-class OverlayView(context: Context?, attrs: AttributeSet?) :
-    View(context, attrs) {
+class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
     private var results: PoseLandmarkerResult? = null
     private var pointPaint = Paint()
@@ -39,8 +38,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     }
 
     private fun initPaints() {
-        linePaint.color =
-            ContextCompat.getColor(context!!, R.color.mp_color_primary)
+        linePaint.color = ContextCompat.getColor(context!!, R.color.mp_color_primary)
         linePaint.strokeWidth = LANDMARK_STROKE_WIDTH
         linePaint.style = Paint.Style.STROKE
 
@@ -57,26 +55,36 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         super.draw(canvas)
         results?.let { poseLandmarkerResult ->
 
-            // Draw points and joint labels
-            for ((index, landmark) in poseLandmarkerResult.landmarks().withIndex()) {
-                for (normalizedLandmark in landmark) {
-                    val x = normalizedLandmark.x() * imageWidth * scaleFactor
-                    val y = normalizedLandmark.y() * imageHeight * scaleFactor
+            // Access all landmarks
+            val landmarks = poseLandmarkerResult.landmarks()
 
+            // Check if the list is empty to avoid IndexOutOfBoundsException
+            if (landmarks.isNotEmpty() && landmarks[0].isNotEmpty()) {
+                // Loop through each landmark and display its corresponding number
+                for ((index, landmark) in landmarks[0].withIndex()) {
                     // Draw the landmark point
-                    canvas.drawPoint(x, y, pointPaint)
+                    canvas.drawPoint(
+                        landmark.x() * imageWidth * scaleFactor,
+                        landmark.y() * imageHeight * scaleFactor,
+                        pointPaint
+                    )
 
-                    // Draw the joint label
-                    canvas.drawText("Joint ${index + 1}", x, y - 20, textPaint)
+                    // Draw the landmark index (joint number) near the corresponding joint
+                    canvas.drawText(
+                        "$index",
+                        landmark.x() * imageWidth * scaleFactor,
+                        landmark.y() * imageHeight * scaleFactor - 20, // Slight offset for visibility
+                        textPaint
+                    )
                 }
 
-                // Draw lines connecting the landmarks (pose skeleton)
+                // Draw lines between pose landmarks (if needed)
                 PoseLandmarker.POSE_LANDMARKS.forEach {
                     canvas.drawLine(
-                        poseLandmarkerResult.landmarks()[0][it!!.start()].x() * imageWidth * scaleFactor,
-                        poseLandmarkerResult.landmarks()[0][it.start()].y() * imageHeight * scaleFactor,
-                        poseLandmarkerResult.landmarks()[0][it.end()].x() * imageWidth * scaleFactor,
-                        poseLandmarkerResult.landmarks()[0][it.end()].y() * imageHeight * scaleFactor,
+                        landmarks[0][it!!.start()].x() * imageWidth * scaleFactor,
+                        landmarks[0][it.start()].y() * imageHeight * scaleFactor,
+                        landmarks[0][it.end()].x() * imageWidth * scaleFactor,
+                        landmarks[0][it.end()].y() * imageHeight * scaleFactor,
                         linePaint
                     )
                 }

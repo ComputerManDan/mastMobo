@@ -67,6 +67,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.fragment:fragment-ktx:1.5.4'
+    implementation 'com.google.mlkit:pose-detection-common:17.0.0'
 
     // Navigation library
     def nav_version = "2.5.3"
@@ -97,5 +98,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     // MediaPipe Library
-    implementation 'com.google.mediapipe:tasks-vision:0.10.14'
+    implementation 'com.google.mediapipe:tasks-vision:0.20230731'
 }
