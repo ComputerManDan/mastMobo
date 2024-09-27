@@ -127,10 +127,10 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
         // Add camera switch button listener
         fragmentCameraBinding.switchCameraButton.setOnClickListener {
-            cameraFacing = if (cameraFacing == CameraSelector.LENS_FACING_BACK) {
-                CameraSelector.LENS_FACING_FRONT
-            } else {
+            cameraFacing = if (cameraFacing == CameraSelector.LENS_FACING_FRONT) {
                 CameraSelector.LENS_FACING_BACK
+            } else {
+                CameraSelector.LENS_FACING_FRONT
             }
             setUpCamera()
         }

@@ -17,6 +17,8 @@
         android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <!-- Switch Camera Button -->
     <Button
         android:id="@+id/switchCameraButton"
         android:layout_width="wrap_content"
@@ -29,4 +31,29 @@
     <include
         android:id="@+id/bottom_sheet_layout"
         layout="@layout/info_bottom_sheet" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!-- Reps and Peaks Box -->
+    <LinearLayout
+        android:id="@+id/reps_peaks_box"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="50dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#80000000"
+    android:maxHeight="240dp"
+    android:gravity="center">
+
+    <!-- Text for Reps and Peaks -->
+    <TextView
+        android:id="@+id/reps_peaks_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reps and Peaks"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:gravity="center" />
+</LinearLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
